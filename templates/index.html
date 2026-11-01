@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园网站</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .gallery img {
+            width: 200px;
+            margin: 10px;
+            cursor: pointer; /* 使图片显示为可点击 */
+        }
+        .post {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .comment {
+            margin-left: 20px;
+        }
+        /* 全屏样式 */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='th.jpg') }}" alt="校徽" style="width: 150px; margin-bottom: 20px;">
+    <h1>欢迎来到山东大学校园网站</h1>
+    <p>这是一个简单的校园网站。</p>
+    <a href="/upload">上传风景照片</a> |
+    <a href="/post">发帖</a>
+
+    <h2>已上传的风景照片：</h2>
+    <div class="gallery">
+        {% for image in images %}
+            <img src="{{ url_for('static', filename='uploads/' + image) }}" alt="{{ image }}" onclick="toggleImage(this)">
+            <a href="{{ url_for('delete_image', filename=image) }}">删除</a>
+        {% endfor %}
+    </div>
+
+    <h2>帖子列表：</h2>
+    <div>
+        {% for post in posts %}
+            <div class="post">
+                <h3>{{ post.title }} <small>({{ post.timestamp }})</small></h3>
+                <p>{{ post.content }}</p>
+                <h4>评论:</h4>
+                <form action="{{ url_for('comment', post_id=loop.index0) }}" method="post">
+                    <input type="text" name="content" required placeholder="发表评论...">
+                    <input type="submit" value="添加评论">
+                </form>
+                <ul>
+                    {% for comment in post.comments %}
+                        <li class="comment">{{ comment }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+
+    <script>
+        function toggleImage(imgElement) {
+            if (imgElement.classList.contains('fullscreen')) {
+                imgElement.classList.remove('fullscreen');
+                imgElement.style.cursor = 'pointer'; // 恢复光标样式
+            } else {
+                imgElement.classList.add('fullscreen');
+                imgElement.style.cursor = 'zoom-out'; // 放大时更改光标样式
+            }
+        }
+    </script>
+</body>
+</html>
